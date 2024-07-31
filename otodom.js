@@ -37,7 +37,7 @@ const testMode = process.argv[2] == 'test';
 
 		if (thumbnailUrl && url) {
 			console.log(`Getting details of auction #${auctionIdx + 1}`);
-			const details = await getAuctionDetails(url, auctionIdx + 1);
+			const details = await getAuctionDetails('https://www.otodom.pl' + url, auctionIdx + 1);
 			const auction = { thumbnailUrl, url: 'https://www.otodom.pl' + url, ...details };
 			auctions.push(auction);
 			auctionIdx++;
