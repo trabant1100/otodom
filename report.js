@@ -31,7 +31,7 @@ async function generateReport(today, vins, rootDir) {
 		const date1 = format.parse('dd.MM.yyyy', fname1);
 		const date2 = format.parse('dd.MM.yyyy', fname2);
 		
-		return date1.getTime() - date1.getTime();
+		return date1.getTime() - date2.getTime();
 	});
 
 	const report = {};
