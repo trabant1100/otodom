@@ -19,8 +19,7 @@ body {
 	padding-bottom: .3em;
 }
 
-.auction > div,
-.auction > details {
+.auction > div {
 	margin: 0 .3em;
 }
 
@@ -99,4 +98,19 @@ summary.snapshot::-webkit-details-marker {
 
 .snapshots > div.snapshot {
 	margin-top: .3em;
+}
+
+.history {
+	--snapshots-count: 1;
+	--snapshots-height: calc(var(--snapshots-count) * (1lh + .3em));
+}
+
+details + .snapshots {
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 1s ease;
+}
+
+details[open] + .snapshots {
+	max-height: var(--snapshots-height);
 }

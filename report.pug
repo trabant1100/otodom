@@ -28,11 +28,13 @@ html(lang="pl")
 						.details
 							.area= Math.round(lastSnapshot.area) + 'm²'
 							.price= (new Intl.NumberFormat('pl-PL').format(lastSnapshot.price)) + ' zł'
-						details.snapshots
-							summary.snapshot
-								+ snapshotDetail(snapshots[0])
-							each snapshot, index in snapshots.splice(1)
-								.snapshot
-									+ snapshotDetail(snapshot)
+						.history(style=`--snapshots-count: ${snapshots.length-1};`)
+							details
+								summary.snapshot
+									+ snapshotDetail(snapshots[0])
+							.snapshots
+								each snapshot, index in snapshots.splice(1)
+									.snapshot
+										+ snapshotDetail(snapshot)
 								
 
