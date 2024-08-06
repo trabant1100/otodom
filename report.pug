@@ -1,0 +1,38 @@
+mixin snapshotDetail(snapshot)
+	- var pricem2 = Math.round(snapshot.price / snapshot.area)
+	.lastDate= new Intl.DateTimeFormat("pl-PL", { day: 'numeric', month: 'long' }).format(fn.parseDate(snapshot.snapshotDate))
+	.pricem2= (new Intl.NumberFormat('pl-PL').format(pricem2)) + ' zł/m²'
+
+doctype html
+html(lang="pl")
+	head
+		meta(charset='utf-8')
+		title= 'Report'
+		link(rel='stylesheet', type='text/css', href='../report.css')
+	body
+		div(class='auctions')
+			each auction, auctionId in report
+				- var firstSnapshot = auction.snapshots[0]
+				- var lastSnapshot = auction.snapshots.at(-1)
+				- var priceChange = (lastSnapshot.price - firstSnapshot.price) / firstSnapshot.price * 100
+				unless bannedUrls.includes(lastSnapshot.url)
+					div(class='auction')
+						- var snapshots = auction.snapshots.toReversed()
+						a(class='otodomAuctionLink', href=lastSnapshot.url, target='_blank')
+							img(class='thumbnail', src=lastSnapshot.imgUrls[0])
+						.header
+							.title= lastSnapshot.title
+							.priceChange(data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
+								| #{priceChange}%
+						.street= lastSnapshot.address.street 
+						.details
+							.area= Math.round(lastSnapshot.area) + 'm²'
+							.price= (new Intl.NumberFormat('pl-PL').format(lastSnapshot.price)) + ' zł'
+						details.snapshots
+							summary.snapshot
+								+ snapshotDetail(snapshots[0])
+							each snapshot, index in snapshots.splice(1)
+								.snapshot
+									+ snapshotDetail(snapshot)
+								
+

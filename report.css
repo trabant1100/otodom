@@ -1,0 +1,102 @@
+body {
+	background-color: lightgray;
+	font-family: Inter, Arial, Helvetica, sans-serif;
+	font-size: 1rem;
+}
+
+.auctions {
+	display: flex;
+	flex-direction: column;
+	gap: 2em;
+	margin: 1em;
+}
+
+.auction {
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+	gap: .3em;
+	padding-bottom: .3em;
+}
+
+.auction > div,
+.auction > details {
+	margin: 0 .3em;
+}
+
+.otodomAuctionLink {
+	height: 10em;
+	margin-bottom: .1em;
+	overflow: clip;
+}
+
+.otodomAuctionLink img.thumbnail {
+	width: 100%;
+}
+
+.header {
+	display: flex;
+	flex-direction: row;
+	gap: 1em;
+}
+
+.title {
+	color: #777;
+}
+
+.priceChange {
+	color: darkgreen;
+	font-size: .8em;
+	line-height: 1.4em;
+}
+
+.priceChange[data-price-drop] {
+	color: crimson;
+}
+
+.priceChange[data-price-drop]::before {
+	content: '⬇';
+	font-size: .9em;
+	margin-right: .2em;
+}
+
+.priceChange[data-price-rise]::before {
+	content: '⬆';
+	font-size: .9em;
+	margin-right: .2em;
+}
+
+.street {
+	color: #999;
+}
+
+.details {
+	color: #222;
+	display: flex;
+	flex-direction: row;
+	font-size: 1.1em;
+}
+
+.details > div {
+	flex-grow: 1;
+}
+
+.details > div:last-child,
+.pricem2 {
+	text-align: right;
+}
+
+.snapshot {
+	color: #777;
+	display: grid;
+	font-size: .9em;
+	grid-template-columns: 50% 50%;
+}
+
+summary.snapshot::-webkit-details-marker {
+	display: none;
+}
+
+.snapshots > div.snapshot {
+	margin-top: .3em;
+}
