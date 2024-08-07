@@ -92,6 +92,11 @@ body {
 	grid-template-columns: 50% 50%;
 }
 
+.snapshot a:any-link {
+	color: inherit;
+	text-decoration: none;
+}
+
 summary.snapshot::-webkit-details-marker {
 	display: none;
 }

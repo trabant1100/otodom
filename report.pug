@@ -1,6 +1,8 @@
 mixin snapshotDetail(snapshot)
 	- var pricem2 = Math.round(snapshot.price / snapshot.area)
-	.lastDate= new Intl.DateTimeFormat("pl-PL", { day: 'numeric', month: 'long' }).format(fn.parseDate(snapshot.snapshotDate))
+	.lastDate
+		a(href=`../listing/${snapshot.snapshotDate}/${snapshot.id}.html`)
+			=new Intl.DateTimeFormat("pl-PL", { day: 'numeric', month: 'long' }).format(fn.parseDate(snapshot.snapshotDate))
 	.pricem2= (new Intl.NumberFormat('pl-PL').format(pricem2)) + ' zł/m²'
 
 doctype html
