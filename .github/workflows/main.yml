@@ -29,10 +29,10 @@ jobs:
         with:
           commit_message: Automatic listing and report generated
           file_pattern: '.'
-  pages-directory-listing:
+  create-github-pages:
     needs: generate
     runs-on: ubuntu-latest
-    name: directory listing index
+    name: create github pages
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
@@ -48,16 +48,15 @@ jobs:
         run: |
           mkdir github-pages/report
           cp report/*.html github-pages/report
-      - name: generate directory listing
-        uses: jayanta525/github-pages-directory-listing@v4.0.0
-        with:
-          FOLDER: .
+      - name: copy index.html
+        run: |
+          cp index.html github-pages/
       - name: upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           path: 'github-pages'
   deploy:
-    needs: pages-directory-listing
+    needs: create-github-pages
     permissions:
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment originates from an appropriate source
