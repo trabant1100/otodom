@@ -10,6 +10,10 @@ jobs:
     permissions: 
       contents: write
     steps:
+      - name: install nodejs lts
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts'
       - name: checkout repo
         uses: actions/checkout@v4
       - name: install dependencies
