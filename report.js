@@ -16,6 +16,9 @@ const today = process.argv[2] ?? format.asString('dd.MM.yyyy', new Date());
 	const html = await createHtml(report, listingDir, { bannedUrls, crashedUrls, favUrls, deadUrls });
 	console.log('Writing report html');
 	await fs.writeFile(`${reportDir}/${today}.html`, html);
+
+	console.log('Writing redirect html');
+	await fs.writeFile('index.html', createRedirectHtml(reportDir, today));
 })();
 
 async function generateReport(today, vins, rootDir) {
@@ -73,16 +76,20 @@ async function createHtml(report, listingDir, { bannedUrls, crashedUrls, favUrls
 		}
 	};
 
-	// tmp
-	let i = 0;
-	for (const [auctionId, auction] of Object.entries(report)) {
-		if (i == 0) {
-			auction.snapshots.at(-1).price = auction.snapshots[0].price / 2
-		} else if (i == 1) {
-			auction.snapshots.at(-1).price = auction.snapshots[0].price * 2
-		}
-		i++;
-	}
-
 	return pugger( { report, bannedUrls, fn } );
+}
+
+function createRedirectHtml(reportDir, today) {
+	return `
+		<!doctype html>
+		<html lang=pl>
+			<head>
+				<meta charset=utf-8>
+				<meta http-equiv="refresh" content="0; url=./${reportDir}/${today}.html">
+				<title>Report</title>
+			</head>
+			<body>
+			</body>
+		</html>
+	`;
 }
