@@ -105,10 +105,34 @@ summary.snapshot::-webkit-details-marker {
 	--snapshots-height: calc(var(--snapshots-count) * (1lh + .3em));
 }
 
+details {
+	margin-bottom: .2em;
+}
+
+details::after {
+	clip-path: inset(50% 0 0 0);
+	color: #999;
+	content: '▿';
+	display: block;
+	font-size: 1.3em;
+	line-height: .7em;
+	overflow: hidden;
+	text-align: center;
+	margin-bottom: -.8em;
+	pointer-events: none;
+	position: relative;
+	top: -.8em;
+}
+
+details[open]::after {
+	rotate: 180deg;
+	top: -.6em;
+}
+
 details + .snapshots {
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height 1s ease;
+	transition: all 400ms ease-in;
 }
 
 details[open] + .snapshots {
