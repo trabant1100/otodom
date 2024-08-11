@@ -1,7 +1,7 @@
 body {
 	background-color: lightgray;
 	font-family: Inter, Arial, Helvetica, sans-serif;
-	font-size: 1rem;
+	font-size: 2.5rem;
 }
 
 .auctions {
@@ -24,13 +24,9 @@ body {
 }
 
 .otodomAuctionLink {
+	background-image: var(--background);
+	background-size: cover;
 	height: 10em;
-	margin-bottom: .1em;
-	overflow: clip;
-}
-
-.otodomAuctionLink img.thumbnail {
-	width: 100%;
 }
 
 .header {
@@ -45,8 +41,6 @@ body {
 
 .priceChange {
 	color: darkgreen;
-	font-size: .8em;
-	line-height: 1.4em;
 }
 
 .priceChange[data-price-drop] {
@@ -55,7 +49,6 @@ body {
 
 .priceChange[data-price-drop]::before {
 	content: '⬇';
-	font-size: .9em;
 	margin-right: .2em;
 }
 

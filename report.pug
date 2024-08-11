@@ -10,18 +10,17 @@ html(lang="pl")
 	head
 		meta(charset='utf-8')
 		title= 'Report'
-		link(rel='stylesheet', type='text/css', href='../report.css')
+		link(rel='stylesheet', type='text/css', href=`../report.css?${Math.random()}`)
 	body
 		div(class='auctions')
 			each auction, auctionId in report
 				- var firstSnapshot = auction.snapshots[0]
 				- var lastSnapshot = auction.snapshots.at(-1)
-				- var priceChange = (lastSnapshot.price - firstSnapshot.price) / firstSnapshot.price * 100
+				- var priceChange = Math.round((lastSnapshot.price - firstSnapshot.price) / firstSnapshot.price * 100)
 				unless bannedUrls.includes(lastSnapshot.url)
 					div(class='auction')
 						- var snapshots = auction.snapshots.toReversed()
-						a(class='otodomAuctionLink', href=lastSnapshot.url, target='_blank')
-							img(class='thumbnail', src=lastSnapshot.imgUrls[0])
+						a(class='otodomAuctionLink', href=lastSnapshot.url, target='_blank', style="--background: url('" + lastSnapshot.imgUrls[0] + "')" )
 						.header
 							.title= lastSnapshot.title
 							.priceChange(data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
