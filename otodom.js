@@ -23,7 +23,13 @@ const api_key = process.env.API_KEY;
 	}
 	console.log('Getting list of auctions');
 	const proxyUrl = getScrapeUrl(listingUrl);
-	const { data } = testMode ? { data: await fs.readFile('mocks/list.mock.html', { encoding: 'utf-8' }) } : await axios.get(proxyUrl);
+	
+	let data = {};
+	try {
+		data = testMode ? await fs.readFile('mocks/list.mock.html', { encoding: 'utf-8' }) : (await axios.get(proxyUrl)).data;
+	} catch(e) {
+		console.log(e.response.data);
+	}
 	const $ = cheerio.load(data);
 	const articles = $('article').toArray();
 	const auctions = [];
