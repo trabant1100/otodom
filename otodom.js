@@ -5,6 +5,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 const testMode = process.argv[2] == 'test';
+const api_key = process.env.API_KEY;
 
 (async function main() {
 	const config = JSON.parse(await fs.readFile('config.json'));
@@ -53,7 +54,7 @@ const testMode = process.argv[2] == 'test';
 })();
 
 function getScrapeUrl(url) {
-	const proxyParams = { api_key: '5ceeb830-f7f4-4768-8941-41789b57a211', url: url };
+	const proxyParams = { api_key: api_key, url: url };
 	const proxyUrl = 'https://proxy.scrapeops.io/v1/?' + qs.stringify(proxyParams);
 	return proxyUrl;
 }
