@@ -20,6 +20,8 @@ jobs:
         run: |
           npm install
       - name: otodom listing
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
         run: |
           node otodom.js
       - name: otodom create html
