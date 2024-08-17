@@ -17,25 +17,31 @@ html(lang="pl")
 				- var firstSnapshot = auction.snapshots[0]
 				- var lastSnapshot = auction.snapshots.at(-1)
 				- var priceChange = Math.round((lastSnapshot.price - firstSnapshot.price) / firstSnapshot.price * 100)
-				unless bannedUrls.includes(lastSnapshot.url)
-					div(class='auction')
-						- var snapshots = auction.snapshots.toReversed()
-						a(class='otodomAuctionLink', href=lastSnapshot.url, target='_blank', style="--background: url('" + lastSnapshot.imgUrls[0] + "')" )
-						.header
-							.title= lastSnapshot.title
-							.priceChange(data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
-								| #{priceChange}%
+				- var banned = bannedUrls.includes(lastSnapshot.url) ? 'banned' : ''
+				- var fav = favUrls.includes(lastSnapshot.url) ? 'fav' : ''
+				- var dead = deadUrls.includes(lastSnapshot.url) ? 'dead' : ''
+				- var ended = auction.ended ? 'ended' : ''
+				- var className = ['auction', banned, fav, dead, ended].join(' ')
+				div(class=className)
+					- var snapshots = auction.snapshots.toReversed()
+					a(class='otodomAuctionLink', href=lastSnapshot.url, target='_blank', style="--background: url('" + lastSnapshot.imgUrls[0] + "')" )
+					.header
+						.title= lastSnapshot.title
+						.priceChange(data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
+							| #{priceChange}%
+					.details
 						.street= lastSnapshot.address.street 
-						.details
-							.area= Math.round(lastSnapshot.area) + 'm²'
-							.price= (new Intl.NumberFormat('pl-PL').format(lastSnapshot.price)) + ' zł'
-						.history(style=`--snapshots-count: ${snapshots.length-1};`)
-							details
-								summary.snapshot
-									+ snapshotDetail(snapshots[0])
-							.snapshots
-								each snapshot, index in snapshots.splice(1)
-									.snapshot
-										+ snapshotDetail(snapshot)
+						.floor= lastSnapshot.floor == 0 ? 'parter' : `${lastSnapshot.floor}. piętro`
+					.details
+						.area= Math.round(lastSnapshot.area) + 'm²'
+						.price= (new Intl.NumberFormat('pl-PL').format(lastSnapshot.price)) + ' zł'
+					.history(style=`--snapshots-count: ${snapshots.length-1};`)
+						details
+							summary.snapshot
+								+ snapshotDetail(snapshots[0])
+						.snapshots
+							each snapshot, index in snapshots.splice(1)
+								.snapshot
+									+ snapshotDetail(snapshot)
 								
 

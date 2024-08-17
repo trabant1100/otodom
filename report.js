@@ -6,14 +6,14 @@ const today = process.argv[2] ?? format.asString('dd.MM.yyyy', new Date());
 (async function main() {
 	const config = JSON.parse(await fs.readFile('config.json'));
 	const listingDir = config.listing.dir;
-	const { dir: reportDir, banned_urls: bannedUrls, crashed_urls: crashedUrls, fav_urls: favUrls, dead_urls: deadUrls, vins } = config.report;
+	const { dir: reportDir, banned_urls: bannedUrls, fav_urls: favUrls, dead_urls: deadUrls } = config.report;
 
-	const report = await generateReport(today, vins, listingDir);
+	const report = await generateReport(today, listingDir);
 	console.log('Writing report json');
 	await fs.mkdir(reportDir, { recursive: true });
 	await fs.writeFile(`${reportDir}/${today}.json`, JSON.stringify(report, null, 2));
 
-	const html = await createHtml(report, listingDir, { bannedUrls, crashedUrls, favUrls, deadUrls });
+	const html = await createHtml(normalizeReport(report), listingDir, { bannedUrls, favUrls, deadUrls });
 	console.log('Writing report html');
 	await fs.writeFile(`${reportDir}/${today}.html`, html);
 
@@ -21,7 +21,19 @@ const today = process.argv[2] ?? format.asString('dd.MM.yyyy', new Date());
 	await fs.writeFile('index.html', createRedirectHtml(reportDir, today));
 })();
 
-async function generateReport(today, vins, rootDir) {
+function normalizeReport(report) {
+	const normalized = JSON.parse(JSON.stringify(report));
+
+	for (const [auctionId, auction] of Object.entries(normalized)) {
+		for (const snapshot of auction.snapshots) {
+			snapshot.floor = snapshot.floor == 'GROUND_FLOOR' ? 0 : Number.parseInt(snapshot.floor.replace('FLOOR_', ''));
+		}
+	}
+
+	return normalized;
+}
+
+async function generateReport(today, rootDir) {
 	const listingDirs = [];
 	for (const filename of await fs.readdir(rootDir)) {
 		const fullFilename = `${rootDir}/${filename}`;
@@ -68,7 +80,7 @@ async function generateReport(today, vins, rootDir) {
 	return report;
 }
 
-async function createHtml(report, listingDir, { bannedUrls, crashedUrls, favUrls, deadUrls }) {
+async function createHtml(report, listingDir, { bannedUrls, favUrls, deadUrls }) {
 	const pugger = pug.compile(await fs.readFile('report.pug'));
 	const fn = {
 		parseDate(str) {
@@ -76,7 +88,7 @@ async function createHtml(report, listingDir, { bannedUrls, crashedUrls, favUrls
 		}
 	};
 
-	return pugger( { report, bannedUrls, fn } );
+	return pugger( { report, bannedUrls, favUrls, deadUrls, fn } );
 }
 
 function createRedirectHtml(reportDir, today) {

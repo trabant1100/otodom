@@ -29,6 +29,36 @@ body {
 	padding-bottom: .3em;
 }
 
+.auction.banned {
+	display: none;
+}
+
+.auction.fav > a.otodomAuctionLink:any-link {
+	text-decoration: none;
+}
+
+.auction.fav > a.otodomAuctionLink:any-link::after {
+	aspect-ratio: 1/1;
+	background: linear-gradient(135deg, rgba(157,213,58,1) 0%, rgba(128,194,23,1) 50%, transparent 50%, transparent 100%);
+	box-sizing: border-box;
+	color: white;
+	content: '★';
+	display: block;
+	font-size: 200%;
+	line-height: 1.3em;
+	opacity: 80%;
+	padding-left: 0.1em;
+	width: 20%;
+}
+
+.auction.ended {
+	opacity: 0.5;
+}
+
+.auction.ended .otodomAuctionLink {
+	filter: grayscale(1);
+}
+
 .auction > div {
 	margin: 0 .3em;
 }
@@ -69,7 +99,9 @@ body {
 	margin-right: .2em;
 }
 
-.street {
+.street,
+.floor {
+	font-size: 1rem;
 	color: #999;
 }
 
