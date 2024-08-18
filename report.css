@@ -126,7 +126,7 @@ body {
 .snapshot {
 	color: #777;
 	display: grid;
-	font-size: .9em;
+	font-size: var(--snapshot-font-size);
 	grid-template-columns: 50% 50%;
 }
 
@@ -140,12 +140,15 @@ summary.snapshot::-webkit-details-marker {
 }
 
 .snapshots > div.snapshot {
-	margin-top: .3em;
+	margin-top: var(--snapshot-gap);
 }
 
 .history {
+	--snapshot-gap: .3em;
+	--snapshot-font-size: .9em;
 	--snapshots-count: 1;
-	--snapshots-height: calc(var(--snapshots-count) * (1lh + .3em));
+	--snapshot-height: var(--snapshot-font-size) + var(--snapshot-gap);
+	--snapshots-height: calc(var(--snapshots-count) * (var(--snapshot-height) + var(--snapshot-gap)));
 }
 
 details {
@@ -175,7 +178,7 @@ details[open]::after {
 details + .snapshots {
 	max-height: 0;
 	overflow: hidden;
-	transition: all 400ms ease-in;
+	transition: max-height 400ms ease-in;
 }
 
 details[open] + .snapshots {
