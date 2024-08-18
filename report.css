@@ -99,24 +99,26 @@ body {
 	margin-right: .2em;
 }
 
-.street,
-.floor {
-	font-size: 1rem;
-	color: #999;
-}
-
-.details {
+.details,
+.summary {
 	color: #222;
 	display: flex;
 	flex-direction: row;
 	font-size: 1.1em;
 }
 
-.details > div {
+.summary {
+	color: #999;
+	font-size: 1em;
+}
+
+.details > div,
+.summary > div {
 	flex-grow: 1;
 }
 
 .details > div:last-child,
+.summary > div:last-child,
 .pricem2 {
 	text-align: right;
 }

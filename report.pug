@@ -29,7 +29,7 @@ html(lang="pl")
 						.title= lastSnapshot.title
 						.priceChange(data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
 							| #{priceChange}%
-					.details
+					.summary
 						.street= lastSnapshot.address.street 
 						.floor= lastSnapshot.floor == 0 ? 'parter' : `${lastSnapshot.floor}. piętro`
 					.details
