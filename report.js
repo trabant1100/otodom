@@ -23,14 +23,62 @@ const today = process.argv[2] ?? format.asString('dd.MM.yyyy', new Date());
 
 function normalizeReport(report) {
 	const normalized = JSON.parse(JSON.stringify(report));
+	const scale = {
+		priceMargin: 8,
+		price: 40,
+		date: 150
+	};
+
+	// tmp
+	let priceTmp = 1;
+	for (const [index, snapshot] of normalized['65452541'].snapshots.entries()) {
+		snapshot.price = Math.floor(snapshot.price * priceTmp);
+		if (index % (2^index) == 0)
+			priceTmp -= 0.01;
+	}
+	priceTmp = 1;
+	for (const [index, snapshot] of normalized['65508720'].snapshots.entries()) {
+		snapshot.price = 1189000;
+		snapshot.price = Math.floor(snapshot.price * priceTmp);
+		if (index % 3 == 0)
+			priceTmp += 0.01;
+	}
+
 
 	for (const [auctionId, auction] of Object.entries(normalized)) {
-		for (const snapshot of auction.snapshots) {
+		const minPrice = Math.min(...auction.snapshots.map(s => s.price));
+		const maxPrice = Math.max(...auction.snapshots.map(s => s.price));
+		const diff = maxPrice - minPrice;
+		for (const [index, snapshot] of auction.snapshots.entries()) {
+			const prevSnapshot = auction.snapshots[index > 0 ? index - 1 : 0];
 			snapshot.floor = snapshot.floor == 'GROUND_FLOOR' ? 0 : Number.parseInt(snapshot.floor.replace('FLOOR_', ''));
+			snapshot.normalized = {
+				price: Math.round(normalize(minPrice, maxPrice, scale.priceMargin, scale.price - scale.priceMargin, snapshot.price)),
+				date: Math.round(normalize(0, auction.snapshots.length - 1, 0, scale.date, index)),
+			};
+			if (prevSnapshot.price != snapshot.price) {
+				prevSnapshot.normalized.priceChanged = true;
+				snapshot.normalized.priceChanged = true;
+			}
 		}
+		auction.snapshots[0].normalized.priceChanged = true;
+		auction.snapshots.at(-1).normalized.priceChanged = true;
+		auction.normalized = {
+			scale: { ...scale }
+		};
 	}
 
 	return normalized;
+}
+
+function normalize(min, max, newMin, newMax, value) {
+	const diff = max - min;
+	const newDiff = newMax - newMin;
+	if (diff == 0) {
+		return newDiff / 2;
+	}
+
+	return (value - min) * newDiff / diff + newMin;
 }
 
 async function generateReport(today, rootDir) {

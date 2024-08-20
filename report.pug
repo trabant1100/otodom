@@ -22,12 +22,12 @@ html(lang="pl")
 				- var dead = deadUrls.includes(lastSnapshot.url) ? 'dead' : ''
 				- var ended = auction.ended ? 'ended' : ''
 				- var className = ['auction', banned, fav, dead, ended].join(' ')
-				div(class=className)
+				div(class=className, data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
 					- var snapshots = auction.snapshots.toReversed()
 					a(class='otodomAuctionLink', href=lastSnapshot.url, target='_blank', style="--background: url('" + lastSnapshot.imgUrls[0] + "')" )
 					.header
 						.title= lastSnapshot.title
-						.priceChange(data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
+						.priceChange
 							| #{priceChange}%
 					.summary
 						.street= lastSnapshot.address.street 
@@ -35,6 +35,26 @@ html(lang="pl")
 					.details
 						.area= Math.round(lastSnapshot.area) + 'm²'
 						.price= (new Intl.NumberFormat('pl-PL').format(lastSnapshot.price)) + ' zł'
+					.history(style=`--snapshots-count: ${snapshots.length-1};`)
+						- var scale = auction.normalized.scale;
+						- var xMargin = 2;
+						svg(class='priceChart', viewBox=`-${xMargin} 0 ${scale.date + xMargin * 2} ${scale.price}`)
+							- 
+								var svgPoints = snapshots
+									.toReversed()
+									.map(s => `${s.normalized.date},${scale.price - s.normalized.price}`)
+								var fillPoints = svgPoints.concat([`${scale.date},${scale.price}`, `0,${scale.price}`])
+							defs
+								linearGradient(id=`fillGradient${auctionId}`, gradientTransform='rotate(90)')
+									stop(offset='0%', stop-color='var(--price-bg-color)')
+									stop(offset='50%', stop-color='var(--price-bg-color)')
+									stop(offset='100%', stop-color='white')
+
+							polygon(points=fillPoints.join(' '), fill=`url(#fillGradient${auctionId})`)
+							polyline(points=svgPoints.join(' '))
+							each snapshot, index in snapshots.toReversed()
+								if snapshot.normalized.priceChanged
+									circle(cx=snapshot.normalized.date, cy=scale.price - snapshot.normalized.price, r=1)
 					.history(style=`--snapshots-count: ${snapshots.length-1};`)
 						details
 							summary.snapshot

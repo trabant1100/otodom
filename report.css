@@ -22,11 +22,18 @@ body {
 }
 
 .auction {
+	--price-main-color: darkgreen;
+	--price-bg-color: darkseagreen;
 	background-color: white;
 	display: flex;
 	flex-direction: column;
 	gap: .3em;
 	padding-bottom: .3em;
+}
+
+.auction[data-price-drop] {
+	--price-main-color: crimson;
+	--price-bg-color: lightcoral;
 }
 
 .auction.banned {
@@ -81,19 +88,15 @@ body {
 }
 
 .priceChange {
-	color: darkgreen;
+	color: var(--price-main-color);
 }
 
-.priceChange[data-price-drop] {
-	color: crimson;
-}
-
-.priceChange[data-price-drop]::before {
+.auction[data-price-drop] .priceChange::before {
 	content: '⬇';
 	margin-right: .2em;
 }
 
-.priceChange[data-price-rise]::before {
+.auction[data-price-rise] .priceChange::before {
 	content: '⬆';
 	font-size: .9em;
 	margin-right: .2em;
@@ -196,4 +199,24 @@ details[open] + .snapshots {
 		flex-grow: 1;
 		min-width: max(20%, 20em);
 	}
+}
+
+/* chart */
+svg.priceChart {
+}
+
+svg.priceChart polyline {
+	fill: none;
+	stroke: var(--price-main-color);
+	stroke-linecap: round;
+	stroke-width: 1;
+}
+
+svg.priceChart circle {
+	fill: var(--price-main-color);
+}
+
+svg.priceChart circle:hover,
+svg.priceChart circle:active {
+	fill: black;
 }
