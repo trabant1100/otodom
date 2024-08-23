@@ -40,7 +40,7 @@ html(lang="pl")
 						- var scale = auction.normalized.scale;
 						- var xMargin = 2;
 						- var yMargin = scale.priceMargin / 2
-						svg(class='priceChart', viewBox=`-${xMargin} 0 ${scale.date + xMargin * 2} ${scale.price}`)
+						svg(class='priceChart', viewBox=`-${xMargin} 0 ${scale.date + xMargin * 2} ${scale.price + 20}`)
 							- 
 								var chronos = snapshots.toReversed()
 								var chronosPoints = [{ x: 0, y: scale.price - chronos[0].normalized.price }]
@@ -67,39 +67,22 @@ html(lang="pl")
 									stop(offset='50%', stop-color='var(--price-bg-color)')
 									stop(offset='100%', stop-color='white')
 							g
-								each snapshot, index in chronos
-									- var date = snapshot.normalized.date
-									line(x1=date, y1=0, x2=date, y2=scale.price, stroke='black', stroke-width='0.1')
-							g
 								polygon(points=fillPoints.join(' '), fill=`url(#fillGradient${auctionId})`)
-								//- polyline(points=svgPoints.join(' '))
-								//- each snapshot, index in snapshots.toReversed()
-								//- 	if snapshot.normalized.priceChanged
-								//- 		circle(cx=snapshot.normalized.date, cy=scale.price - snapshot.normalized.price, r=1)
-
 							- var index = 0
-							- var loopCount = 0
-							- console.log('START')
 							while index < chronosPoints.length - 1
 								- 
 									var point = chronosPoints[index]
-									var colors = ['red', 'green', 'blue']
 									var priceChangeIndex = chronosPoints.slice(index)
 										.findIndex(p => p.y != point.y)
 									priceChangeIndex = priceChangeIndex != -1 ? index + priceChangeIndex : chronosPoints.length;
-									//- var priceChangePoint = chronosPoints[priceChangeIndex]
-									//- var chartPoints = chronosPoints.slice(index, priceChangeIndex + 1)
 									var chartPoints = [chronosPoints[index]]
 										.concat(chronosPoints[priceChangeIndex - 1], chronosPoints[priceChangeIndex])
 										.filter(p => p != undefined)	
 									var points = chartPoints
 										.concat({ x: chartPoints.at(-1).x, y: scale.price }, { x: point.x, y: scale.price })
 								g.price
-									//- - console.log(points)
 									polygon(points=points.map(p => `${p.x},${p.y}`).join(' '), tabindex=-1)
 									polyline(points=points.filter(p => p.y != scale.price).map(p => `${p.x},${p.y}`).join(' '))
-									//- fill=colors[loopCount % 3])
-									//- fill='white', fill-opacity=0)
 									- 
 										var price = fn.formatMoney(chronos[index].price)
 										var priceWidth = price.length * 3.67 + 3
@@ -110,18 +93,11 @@ html(lang="pl")
 										var dateRange = [
 											Math.min(...points.map(p => p.x)),
 											Math.max(...points.map(p => p.x))]
-										//- each date in dateRange
-										//- 	line(x1=date, y1=0, x2=date, y2=scale.price, 
-										//- 		stroke='black', stroke-width='0.5', class='dateRange')
 									g.priceInfo(transform=`translate(${trans.x}, ${trans.y})`)
-
 										rect(x=point.x, y=point.y, width=priceWidth, height=10, rx=2)
 										text(x=point.x + priceWidth / 2 - 0.4, y=point.y + 6, text-anchor='middle' dominant-baseline='middle')
 											| #{price}
-								- console.log(index, priceChangeIndex, chronosPoints.length)
 								- index = priceChangeIndex
-								- loopCount ++
-							- console.log('END')
 					.history(style=`--snapshots-count: ${snapshots.length-1};`)
 						details
 							summary.snapshot
