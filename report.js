@@ -133,6 +133,58 @@ async function createHtml(report, listingDir, { bannedUrls, favUrls, deadUrls })
 	const fn = {
 		parseDate(str) {
 			return format.parse('dd.MM.yyyy', str);
+		},
+		formatMoney(price) {
+			return (new Intl.NumberFormat('pl-PL').format(price)) + ' zł'
+		},
+		translatePriceInfo(viewport, occupied, x, y, width, height) {
+			const vp = dims({ left: viewport.x + 2, top: viewport.y, 
+				right: viewport.x + viewport.width - 2, bottom: viewport.y + viewport.height });
+			const oc = dims({ 
+				left: Math.min(...occupied.map(p => p.x)),
+				top: Math.min(...occupied.map(p => p.y)),
+				right: Math.max(...occupied.map(p => p.x)),
+				bottom: Math.max(...occupied.map(p => p.y))
+			});
+			const it = dims({ left: x, top: y, 
+				right: x + width, bottom: y + height });
+			
+			let tx = 0;
+			let ty = 0;
+
+			if (translate(it, { ty: -12 }).top >= vp.top) {
+				ty = -12;
+				tx = 2;
+				if (it.right > vp.right) {
+					tx = -(it.width - oc.width + 2);
+				}
+			} else {
+				ty = vp.top - it.top;
+				if (translate(it, { tx: oc.width }).right <= vp.right) {
+					tx = oc.width;
+				} else {
+					tx = -(it.width + 2);
+				}
+			}
+
+			function dims(item) {
+				return { 
+					...item,
+					width: item.right - item.left,
+					height: item.bottom - item.top,
+				};
+			}
+
+			function translate({ left, top, right, bottom }, { tx = 0, ty = 0 }) {
+				return {
+					left: left + tx,
+					top: top + ty,
+					right: right + tx,
+					bottom: bottom + ty,
+				};
+			}
+
+			return { x: tx, y: ty };
 		}
 	};
 
