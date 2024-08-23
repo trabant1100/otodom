@@ -220,6 +220,13 @@ svg.priceChart g.price polygon {
 	transition: opacity 200ms ease-in;
 }
 
+svg.priceChart g.price polyline {
+	fill: none;
+	stroke: var(--price-main-color);
+	stroke-linecap: round;
+	stroke-width: 1;
+}
+
 svg.priceChart g.price g.priceInfo {
 	display: none;
 }
@@ -229,22 +236,19 @@ svg.priceChart g.price g.priceInfo {
 		opacity: .5;
 	}
 
-	svg.priceChart g.price polygon:hover + g.priceInfo {
+	svg.priceChart g.price polygon:hover ~ g.priceInfo {
 		display: unset;
 	}
 }
 
 @media (pointer: coarse) {
-	svg.priceChart g.price polygon:focus + g.priceInfo {
+	svg.priceChart g.price polygon:focus {
+		opacity: .5;
+	}
+
+	svg.priceChart g.price polygon:focus ~ g.priceInfo {
 		display: unset;
 	}
-}
-
-svg.priceChart polyline {
-	fill: none;
-	stroke: var(--price-main-color);
-	stroke-linecap: round;
-	stroke-width: 1;
 }
 
 svg.priceChart circle {

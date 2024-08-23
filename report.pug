@@ -72,7 +72,7 @@ html(lang="pl")
 									line(x1=date, y1=0, x2=date, y2=scale.price, stroke='black', stroke-width='0.1')
 							g
 								polygon(points=fillPoints.join(' '), fill=`url(#fillGradient${auctionId})`)
-								polyline(points=svgPoints.join(' '))
+								//- polyline(points=svgPoints.join(' '))
 								//- each snapshot, index in snapshots.toReversed()
 								//- 	if snapshot.normalized.priceChanged
 								//- 		circle(cx=snapshot.normalized.date, cy=scale.price - snapshot.normalized.price, r=1)
@@ -97,6 +97,7 @@ html(lang="pl")
 								g.price
 									//- - console.log(points)
 									polygon(points=points.map(p => `${p.x},${p.y}`).join(' '), tabindex=-1)
+									polyline(points=points.filter(p => p.y != scale.price).map(p => `${p.x},${p.y}`).join(' '))
 									//- fill=colors[loopCount % 3])
 									//- fill='white', fill-opacity=0)
 									- 
