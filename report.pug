@@ -40,7 +40,7 @@ html(lang="pl")
 						- var scale = auction.normalized.scale;
 						- var xMargin = 2;
 						- var yMargin = scale.priceMargin / 2
-						svg(class='priceChart', viewBox=`-${xMargin} 0 ${scale.date + xMargin * 2} ${scale.price + 20}`)
+						svg(class='priceChart', viewBox=`-${xMargin} 0 ${scale.date + xMargin * 2} ${scale.price + 10}`)
 							- 
 								var chronos = snapshots.toReversed()
 								var chronosPoints = [{ x: 0, y: scale.price - chronos[0].normalized.price }]
@@ -66,7 +66,8 @@ html(lang="pl")
 									stop(offset='0%', stop-color='var(--price-bg-color)')
 									stop(offset='50%', stop-color='var(--price-bg-color)')
 									stop(offset='100%', stop-color='white')
-							g
+							g.background
+								line(x1=0, y1=scale.price, x2=scale.date, y2=scale.price, class='axisDate')
 								polygon(points=fillPoints.join(' '), fill=`url(#fillGradient${auctionId})`)
 							- var priceInfos = fn.calculatePriceInfos(chronosPoints, chronos, scale)
 							each priceInfo in priceInfos
@@ -80,20 +81,16 @@ html(lang="pl")
 								g.price
 									polygon(points=points.map(p => `${p.x},${p.y}`).join(' '), tabindex=-1)
 									polyline(points=points.filter(p => p.y != scale.price).map(p => `${p.x},${p.y}`).join(' '))
-									//- - 
-									//- 	var price = fn.formatMoney(chronos[index].price)
-									//- 	var priceWidth = price.length * 3.67 + 3
-									//- 	var trans = fn.translatePriceInfo(
-									//- 		{ x: 0, y: 0, width: scale.date, height: scale.price },
-									//- 		points,
-									//- 		point.x, point.y, priceWidth, 10)
-									//- 	var dateRange = [
-									//- 		Math.min(...points.map(p => p.x)),
-									//- 		Math.max(...points.map(p => p.x))]
 									g.priceInfo(transform=`translate(${trans.x}, ${trans.y})`)
 										rect(x=point.x, y=point.y, width=priceWidth, height=10, rx=2)
 										text(x=point.x + priceWidth / 2 - 0.4, y=point.y + 6, text-anchor='middle' dominant-baseline='middle')
 											| #{price}
+								if index > 0
+									g.dateInfo
+										- var date = fn.parseDate(chronos[index].snapshotDate)
+										line.date(x1=point.x, y1=scale.price, x2=point.x, y2=scale.price + 3)
+										text(x=point.x, y=scale.price + 4, text-anchor='middle', dominant-baseline='hanging', class='date')
+											| #{new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short' }).format(date)}
 					.history(style=`--snapshots-count: ${snapshots.length-1};`)
 						details
 							summary.snapshot

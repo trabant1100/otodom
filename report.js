@@ -29,22 +29,6 @@ function normalizeReport(report) {
 		date: 150
 	};
 
-	// tmp
-	let priceTmp = 1;
-	for (const [index, snapshot] of normalized['65452541'].snapshots.entries()) {
-		snapshot.price = Math.floor(snapshot.price * priceTmp);
-		if (index % (2^index) == 0)
-			priceTmp -= 0.01;
-	}
-	priceTmp = 1;
-	for (const [index, snapshot] of normalized['65508720'].snapshots.entries()) {
-		snapshot.price = 1189000;
-		snapshot.price = Math.floor(snapshot.price * priceTmp);
-		if (index % 3 == 0)
-			priceTmp += 0.01;
-	}
-
-
 	for (const [auctionId, auction] of Object.entries(normalized)) {
 		const minPrice = Math.min(...auction.snapshots.map(s => s.price));
 		const maxPrice = Math.max(...auction.snapshots.map(s => s.price));

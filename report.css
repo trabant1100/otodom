@@ -205,6 +205,11 @@ details[open] + .snapshots {
 svg.priceChart {
 }
 
+svg.priceChart g.background line.axisDate {
+	stroke: #222;
+	stroke-width: .5;
+}
+
 svg.priceChart g.price rect {
 	fill: var(--price-main-color);
 }
@@ -251,11 +256,11 @@ svg.priceChart g.price g.priceInfo {
 	}
 }
 
-svg.priceChart circle {
-	fill: var(--price-main-color);
+svg.priceChart g.dateInfo line.date {
+	stroke: #222;
+	stroke-width: .5;
 }
 
-svg.priceChart circle:hover,
-svg.priceChart circle:active {
-	fill: black;
+svg.priceChart g.dateInfo text.date {
+	font-size: calc(1em / var(--font-scale) * 0.3);
 }
