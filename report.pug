@@ -68,36 +68,32 @@ html(lang="pl")
 									stop(offset='100%', stop-color='white')
 							g
 								polygon(points=fillPoints.join(' '), fill=`url(#fillGradient${auctionId})`)
-							- var index = 0
-							while index < chronosPoints.length - 1
-								- 
-									var point = chronosPoints[index]
-									var priceChangeIndex = chronosPoints.slice(index)
-										.findIndex(p => p.y != point.y)
-									priceChangeIndex = priceChangeIndex != -1 ? index + priceChangeIndex : chronosPoints.length;
-									var chartPoints = [chronosPoints[index]]
-										.concat(chronosPoints[priceChangeIndex - 1], chronosPoints[priceChangeIndex])
-										.filter(p => p != undefined)	
-									var points = chartPoints
-										.concat({ x: chartPoints.at(-1).x, y: scale.price }, { x: point.x, y: scale.price })
+							- var priceInfos = fn.calculatePriceInfos(chronosPoints, chronos, scale)
+							each priceInfo in priceInfos
+								- var index = priceInfo.index
+								- var priceChangeIndex = priceInfo.priceChangeIndex
+								- var point = priceInfo.point
+								- var points = priceInfo.points
+								- var trans = priceInfo.trans
+								- var priceWidth = priceInfo.priceWidth
+								- var price = priceInfo.price
 								g.price
 									polygon(points=points.map(p => `${p.x},${p.y}`).join(' '), tabindex=-1)
 									polyline(points=points.filter(p => p.y != scale.price).map(p => `${p.x},${p.y}`).join(' '))
-									- 
-										var price = fn.formatMoney(chronos[index].price)
-										var priceWidth = price.length * 3.67 + 3
-										var trans = fn.translatePriceInfo(
-											{ x: 0, y: 0, width: scale.date, height: scale.price },
-											points,
-											point.x, point.y, priceWidth, 10)
-										var dateRange = [
-											Math.min(...points.map(p => p.x)),
-											Math.max(...points.map(p => p.x))]
+									//- - 
+									//- 	var price = fn.formatMoney(chronos[index].price)
+									//- 	var priceWidth = price.length * 3.67 + 3
+									//- 	var trans = fn.translatePriceInfo(
+									//- 		{ x: 0, y: 0, width: scale.date, height: scale.price },
+									//- 		points,
+									//- 		point.x, point.y, priceWidth, 10)
+									//- 	var dateRange = [
+									//- 		Math.min(...points.map(p => p.x)),
+									//- 		Math.max(...points.map(p => p.x))]
 									g.priceInfo(transform=`translate(${trans.x}, ${trans.y})`)
 										rect(x=point.x, y=point.y, width=priceWidth, height=10, rx=2)
 										text(x=point.x + priceWidth / 2 - 0.4, y=point.y + 6, text-anchor='middle' dominant-baseline='middle')
 											| #{price}
-								- index = priceChangeIndex
 					.history(style=`--snapshots-count: ${snapshots.length-1};`)
 						details
 							summary.snapshot
