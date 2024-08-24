@@ -23,14 +23,46 @@ const today = process.argv[2] ?? format.asString('dd.MM.yyyy', new Date());
 
 function normalizeReport(report) {
 	const normalized = JSON.parse(JSON.stringify(report));
+	const scale = {
+		priceMargin: 8,
+		price: 40,
+		date: 150
+	};
 
 	for (const [auctionId, auction] of Object.entries(normalized)) {
-		for (const snapshot of auction.snapshots) {
+		const minPrice = Math.min(...auction.snapshots.map(s => s.price));
+		const maxPrice = Math.max(...auction.snapshots.map(s => s.price));
+		const diff = maxPrice - minPrice;
+		for (const [index, snapshot] of auction.snapshots.entries()) {
+			const prevSnapshot = auction.snapshots[index > 0 ? index - 1 : 0];
 			snapshot.floor = snapshot.floor == 'GROUND_FLOOR' ? 0 : Number.parseInt(snapshot.floor.replace('FLOOR_', ''));
+			snapshot.normalized = {
+				price: Math.round(normalize(minPrice, maxPrice, scale.priceMargin, scale.price - scale.priceMargin, snapshot.price)),
+				date: Math.round(normalize(0, auction.snapshots.length - 1, 0, scale.date, index)),
+			};
+			if (prevSnapshot.price != snapshot.price) {
+				prevSnapshot.normalized.priceChanged = true;
+				snapshot.normalized.priceChanged = true;
+			}
 		}
+		auction.snapshots[0].normalized.priceChanged = true;
+		auction.snapshots.at(-1).normalized.priceChanged = true;
+		auction.normalized = {
+			scale: { ...scale }
+		};
 	}
 
 	return normalized;
+}
+
+function normalize(min, max, newMin, newMax, value) {
+	const diff = max - min;
+	const newDiff = newMax - newMin;
+	if (diff == 0) {
+		return newDiff / 2;
+	}
+
+	return (value - min) * newDiff / diff + newMin;
 }
 
 async function generateReport(today, rootDir) {
@@ -85,6 +117,133 @@ async function createHtml(report, listingDir, { bannedUrls, favUrls, deadUrls })
 	const fn = {
 		parseDate(str) {
 			return format.parse('dd.MM.yyyy', str);
+		},
+		formatMoney(price) {
+			return (new Intl.NumberFormat('pl-PL').format(price)) + ' zł'
+		},
+		calculatePriceInfos(chronosPoints, chronos, scale) {
+			const priceInfos = [];
+			let index = 0;
+			while (index < chronosPoints.length - 1) {
+				const point = chronosPoints[index];
+				let priceChangeIndex = chronosPoints.slice(index)
+					.findIndex(p => p.y != point.y);
+				priceChangeIndex = priceChangeIndex != -1 ? index + priceChangeIndex : chronosPoints.length;
+				const chartPoints = [chronosPoints[index]]
+					.concat(chronosPoints[priceChangeIndex - 1], chronosPoints[priceChangeIndex])
+					.filter(p => p != undefined);
+				const points = chartPoints
+					.concat({ x: chartPoints.at(-1).x, y: scale.price }, { x: point.x, y: scale.price });
+
+				priceInfos.push({ index, priceChangeIndex, point, points });
+				index = priceChangeIndex;
+			}
+
+			for (const [i, priceInfo] of priceInfos.entries()) {
+				const { index, points, point } = priceInfo;
+				const price = this.formatMoney(chronos[index].price);
+				const priceWidth = price.length * 3.67 + 3;
+				const trans = this.translatePriceInfo(
+					{ x: 0, y: 0, width: scale.date, height: scale.price },
+					// [points],
+					priceInfos.slice(i).map(pi => pi.points),
+					point.x, point.y, priceWidth, 10);
+				const dateRange = [
+					Math.min(...points.map(p => p.x)),
+					Math.max(...points.map(p => p.x))];
+
+				priceInfo.priceWidth = priceWidth;
+				priceInfo.price = price;
+				priceInfo.trans = trans;
+			}
+
+			return priceInfos;
+		},
+		translatePriceInfo(viewport, occupieds, x, y, width, height) {
+			const vp = dims({ left: viewport.x + 2, top: viewport.y, 
+				right: viewport.x + viewport.width - 2, bottom: viewport.y + viewport.height });
+			const ocs = occupieds.map(occupied => dims({ 
+				left: Math.min(...occupied.map(p => p.x)),
+				top: Math.min(...occupied.map(p => p.y)),
+				right: Math.max(...occupied.map(p => p.x)),
+				bottom: Math.max(...occupied.map(p => p.y)),
+				topFirst: occupied[0].y,
+			}));
+			const oc = ocs[0];
+			const it = dims({ left: x, top: y, 
+				right: x + width, bottom: y + height });
+			
+			let tx = 0;
+			let ty = 0;
+
+			if (translate(it, { ty: -12 }).top >= vp.top) {
+				ty = -12;
+				tx = 2;
+				if (it.right > vp.right) {
+					tx = -(it.width - oc.width + 2);
+				}
+			} else {
+				ty = vp.top - it.top;
+				if (translate(it, { tx: oc.width }).right <= vp.right) {
+					tx = oc.width;
+				} else {
+					tx = -(it.width + 2);
+				}
+			}
+
+			for (let i = ocs.length - 1; i > 0; i--) {
+				const oc = ocs[i];
+				const prevOc = ocs[i-1];
+				if (translate(it, { tx, ty }).overlaps(oc)) {
+					tx -= prevOc.width + 2;
+					if (translate(it, { tx, ty }).left < vp.left) {
+						tx = 0;
+						if (translate(it, { tx, ty}).overlaps(oc)) {
+							ty = -12 - (translate(it, { tx, ty}).bottom - oc.topFirst + 2);
+						}
+						break
+					}
+				}
+			}
+
+			function overlaps(a, b) {
+				function range(low, high) {
+					return {
+						contains: num => low <= num && num <= high,
+					};
+				}
+
+				function over(a, b) {
+					const xRange = range(a.left, a.right);
+					const yRange = range(a.top, a.bottom);
+					const ox = xRange.contains(b.left) || xRange.contains(b.right);
+					const oy = yRange.contains(b.top) || yRange.contains(b.bottom);
+					return ox && oy;
+				}
+
+				return over(a, b) || over(b, a);
+			}
+
+			function dims(item) {
+				return { 
+					...item,
+					width: item.right - item.left,
+					height: item.bottom - item.top,
+					overlaps(item2) { return overlaps(this, item2); },
+				};
+			}
+
+			function translate({ left, top, right, bottom , ...rest}, { tx = 0, ty = 0 }) {
+				return {
+					left: left + tx,
+					top: top + ty,
+					right: right + tx,
+					bottom: bottom + ty,
+					...rest,
+				};
+			}
+
+			return { x: tx, y: ty };
 		}
 	};
 

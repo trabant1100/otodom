@@ -1,17 +1,17 @@
 :root {
-	--font-size: 2.5rem;
+	--font-scale: 2.5;
 }
 
 @media screen and (hover: hover) {
 	:root {
-		--font-size: 1rem;
+		--font-scale: 1;
 	}
 }
 
 body {
 	background-color: lightgray;
 	font-family: Inter, Arial, Helvetica, sans-serif;
-	font-size: var(--font-size);
+	font-size: calc(1rem * var(--font-scale));
 }
 
 .auctions {
@@ -22,11 +22,18 @@ body {
 }
 
 .auction {
+	--price-main-color: darkgreen;
+	--price-bg-color: darkseagreen;
 	background-color: white;
 	display: flex;
 	flex-direction: column;
 	gap: .3em;
 	padding-bottom: .3em;
+}
+
+.auction[data-price-drop] {
+	--price-main-color: crimson;
+	--price-bg-color: lightcoral;
 }
 
 .auction.banned {
@@ -81,19 +88,15 @@ body {
 }
 
 .priceChange {
-	color: darkgreen;
+	color: var(--price-main-color);
 }
 
-.priceChange[data-price-drop] {
-	color: crimson;
-}
-
-.priceChange[data-price-drop]::before {
+.auction[data-price-drop] .priceChange::before {
 	content: '⬇';
 	margin-right: .2em;
 }
 
-.priceChange[data-price-rise]::before {
+.auction[data-price-rise] .priceChange::before {
 	content: '⬆';
 	font-size: .9em;
 	margin-right: .2em;
@@ -196,4 +199,68 @@ details[open] + .snapshots {
 		flex-grow: 1;
 		min-width: max(20%, 20em);
 	}
+}
+
+/* chart */
+svg.priceChart {
+}
+
+svg.priceChart g.background line.axisDate {
+	stroke: #222;
+	stroke-width: .5;
+}
+
+svg.priceChart g.price rect {
+	fill: var(--price-main-color);
+}
+
+svg.priceChart g.price text {
+	fill: linen;
+	font-size: calc(1em / var(--font-scale) * 0.5);
+}
+
+svg.priceChart g.price polygon {
+	fill: white;
+	opacity: 0;
+	transition: opacity 200ms ease-in;
+}
+
+svg.priceChart g.price polyline {
+	fill: none;
+	stroke: var(--price-main-color);
+	stroke-linecap: round;
+	stroke-width: 1;
+}
+
+svg.priceChart g.price g.priceInfo {
+	display: none;
+}
+
+@media (hover: hover) {
+	svg.priceChart g.price polygon:hover {
+		opacity: .5;
+	}
+
+	svg.priceChart g.price polygon:hover ~ g.priceInfo {
+		display: unset;
+	}
+}
+
+@media (pointer: coarse) {
+	svg.priceChart g.price polygon:focus {
+		opacity: .5;
+	}
+
+	svg.priceChart g.price polygon:focus ~ g.priceInfo {
+		display: unset;
+	}
+}
+
+svg.priceChart g.dateInfo line.date {
+	stroke: #222;
+	stroke-width: .5;
+}
+
+svg.priceChart g.dateInfo text.date {
+	font-size: calc(1em / var(--font-scale) * 0.3);
 }
