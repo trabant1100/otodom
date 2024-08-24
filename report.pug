@@ -85,12 +85,12 @@ html(lang="pl")
 										rect(x=point.x, y=point.y, width=priceWidth, height=10, rx=2)
 										text(x=point.x + priceWidth / 2 - 0.4, y=point.y + 6, text-anchor='middle' dominant-baseline='middle')
 											| #{price}
-								if index > 0
-									g.dateInfo
-										- var date = fn.parseDate(chronos[index].snapshotDate)
-										line.date(x1=point.x, y1=scale.price, x2=point.x, y2=scale.price + 3)
-										text(x=point.x, y=scale.price + 4, text-anchor='middle', dominant-baseline='hanging', class='date')
-											| #{new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short' }).format(date)}
+								g.dateInfo
+									- var date = fn.parseDate(chronos[index].snapshotDate)
+									- var textAnchor = index ? 'middle' : 'start'
+									line.date(x1=point.x, y1=scale.price, x2=point.x, y2=scale.price + 3)
+									text(x=point.x, y=scale.price + 4, text-anchor=textAnchor, dominant-baseline='hanging', class='date')
+										| #{new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short' }).format(date)}
 					.history(style=`--snapshots-count: ${snapshots.length-1};`)
 						details
 							summary.snapshot

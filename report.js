@@ -187,7 +187,7 @@ async function createHtml(report, listingDir, { bannedUrls, favUrls, deadUrls })
 				if (translate(it, { tx: oc.width }).right <= vp.right) {
 					tx = oc.width;
 				} else {
-					tx = -(it.width + 2);
+					tx = 2;
 				}
 			}
 
