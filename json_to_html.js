@@ -1,11 +1,11 @@
 const fs = require('node:fs/promises');
-const format = require('date-format');
-
+const { DateTime } = require('luxon');
+const DATE_FORMAT = 'dd.MM.yyyy';
+const today = process.argv[2] ?? DateTime.now().toFormat(DATE_FORMAT);
 
 (async function main() {
 	const config = JSON.parse(await fs.readFile('config.json'));
 	const listingDir = config.listing.dir;
-	const today = format.asString('dd.MM.yyyy', new Date());
 	const auctionsDir = listingDir + '/' + today;
 	const imagesDir = 'images';
 

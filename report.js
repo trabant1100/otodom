@@ -1,7 +1,8 @@
 const fs = require('node:fs/promises');
-const format = require('date-format');
+const { DateTime } = require('luxon');
 const pug = require('pug');
-const today = process.argv[2] ?? format.asString('dd.MM.yyyy', new Date());
+const DATE_FORMAT = 'dd.MM.yyyy';
+const today = process.argv[2] ?? DateTime.now().toFormat(DATE_FORMAT);
 
 (async function main() {
 	const config = JSON.parse(await fs.readFile('config.json'));
@@ -76,10 +77,10 @@ async function generateReport(today, rootDir) {
 		}
 	}
 	listingDirs.sort((fname1, fname2) => {
-		const date1 = format.parse('dd.MM.yyyy', fname1);
-		const date2 = format.parse('dd.MM.yyyy', fname2);
+		const date1 = DateTime.fromFormat(fname1, DATE_FORMAT);
+		const date2 = DateTime.fromFormat(fname2, DATE_FORMAT);
 		
-		return date1.getTime() - date2.getTime();
+		return date1.toMillis() - date2.toMillis();
 	});
 
 	const report = {};
@@ -116,7 +117,7 @@ async function createHtml(report, listingDir, { bannedUrls, favUrls, deadUrls })
 	const pugger = pug.compile(await fs.readFile('report.pug'));
 	const fn = {
 		parseDate(str) {
-			return format.parse('dd.MM.yyyy', str);
+			return DateTime.fromFormat(str, DATE_FORMAT);
 		},
 		formatMoney(price) {
 			return (new Intl.NumberFormat('pl-PL').format(price)) + ' zł'

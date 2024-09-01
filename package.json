@@ -2,7 +2,7 @@
   "dependencies": {
     "axios": "^1.7.2",
     "cheerio": "^1.0.0-rc.12",
-    "date-format": "^4.0.14",
+    "luxon": "^3.5.0",
     "pug": "^3.0.3",
     "querystring": "^0.2.1"
   }
