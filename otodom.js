@@ -14,7 +14,7 @@ const api_key = process.env.API_KEY;
 	const listingUrl = config.listing.url;
 	const today = DateTime.now().toFormat(DATE_FORMAT);
 	const auctionsDir = listingDir + '/' + today;
-	const imagesDir = auctionsDir + '/images';
+	const imagesDir = './images';
 
 	await fs.mkdir(auctionsDir, { recursive: true });
 	await fs.mkdir(imagesDir, { recursive: true });

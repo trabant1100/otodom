@@ -7,7 +7,7 @@ const today = process.argv[2] ?? DateTime.now().toFormat(DATE_FORMAT);
 	const config = JSON.parse(await fs.readFile('config.json'));
 	const listingDir = config.listing.dir;
 	const auctionsDir = listingDir + '/' + today;
-	const imagesDir = 'images';
+	const imagesDir = '../../images';
 
 	for (const filename of await fs.readdir(auctionsDir)) {
 		const fullFilename = `${auctionsDir}/${filename}`;
