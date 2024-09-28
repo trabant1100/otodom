@@ -12,92 +12,58 @@ html(lang="pl")
 		title= 'Report'
 		link(rel='stylesheet', type='text/css', href=`../report.css?${Math.random()}`)
 	body
-		div(class='auctions')
+		include chart
+		div#container
+			input(type='checkbox', data-kind='filter', id='showEnded')
+			label(for='showEnded', data-kind='filter') Ended
+			input(type='checkbox', data-kind='filter', id='showBanned')
+			label(for='showBanned', data-kind='filter') Banned
+			
+			input(type='radio', data-kind='sort', name='sort', id='priceAsc', value='priceAsc')
+			label(for='priceAsc', data-kind='sort') Price ↑
+			input(type='radio', data-kind='sort', name='sort', id='priceDesc', value='priceDesc')
+			label(for='priceDesc', data-kind='sort') Price ↓
+			input(type='radio', data-kind='sort', name='sort', id='areaAsc', value='areaAsc')
+			label(for='areaAsc', data-kind='sort') Area ↑
+			input(type='radio', data-kind='sort', name='sort', id='areaDesc', value='areaDesc', checked=true)
+			label(for='yearDesc', data-kind='sort') Area ↓
 
-			each auction, auctionId in report
-				- var firstSnapshot = auction.snapshots[0]
-				- var lastSnapshot = auction.snapshots.at(-1)
-				- var priceChange = Math.round((lastSnapshot.price - firstSnapshot.price) / firstSnapshot.price * 100)
-				- var banned = bannedUrls.includes(lastSnapshot.url) ? 'banned' : ''
-				- var fav = favUrls.includes(lastSnapshot.url) ? 'fav' : ''
-				- var dead = deadUrls.includes(lastSnapshot.url) ? 'dead' : ''
-				- var ended = auction.ended ? 'ended' : ''
-				- var className = ['auction', banned, fav, dead, ended].join(' ')
-				div(class=className, data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
-					- var snapshots = auction.snapshots.toReversed()
-					a(class='otodomAuctionLink', href=lastSnapshot.url, target='_blank', style="--background: url('" + lastSnapshot.imgUrls[0] + "')" )
-					.header
-						.title= lastSnapshot.title
-						.priceChange
-							| #{priceChange}%
-					.summary
-						.street= lastSnapshot.address.street 
-						.floor= lastSnapshot.floor == 0 ? 'parter' : `${lastSnapshot.floor}. piętro`
-					.details
-						.area= Math.round(lastSnapshot.area) + 'm²'
-						.price= fn.formatMoney(lastSnapshot.price)
-					.history(style=`--snapshots-count: ${snapshots.length-1};`)
-						- var scale = auction.normalized.scale;
-						- var xMargin = 2;
-						- var yMargin = scale.priceMargin / 2
-						svg(class='priceChart', viewBox=`-${xMargin} 0 ${scale.date + xMargin * 2} ${scale.price + 10}`)
-							- 
-								var chronos = snapshots.toReversed()
-								var chronosPoints = [{ x: 0, y: scale.price - chronos[0].normalized.price }]
-									.concat(
-										Array.from(chronos.entries())
-											.map(([i, s]) => {
-												const next = chronos[i+1];
-												const offset = next && s.price != next?.price 
-													? (next?.normalized.date - s.normalized.date - 2) 
-													: 0;
-												return { x: s.normalized.date + offset, y: scale.price - s.normalized.price };
-											}))
-								var svgPoints = chronosPoints
-									.map(p => `${p.x},${p.y}`)
-								var fillPoints = chronosPoints
-									.concat([
-										{ x: scale.date, y: scale.price },
-										{ x: 0, y: scale.price }
-									])
-									.map(p => `${p.x},${p.y}`)
-							defs
-								linearGradient(id=`fillGradient${auctionId}`, gradientTransform='rotate(90)')
-									stop(offset='0%', stop-color='var(--price-bg-color)')
-									stop(offset='50%', stop-color='var(--price-bg-color)')
-									stop(offset='100%', stop-color='white')
-							g.background
-								line(x1=0, y1=scale.price, x2=scale.date, y2=scale.price, class='axisDate')
-								polygon(points=fillPoints.join(' '), fill=`url(#fillGradient${auctionId})`)
-							- var priceInfos = fn.calculatePriceInfos(chronosPoints, chronos, scale)
-							each priceInfo in priceInfos
-								- var index = priceInfo.index
-								- var priceChangeIndex = priceInfo.priceChangeIndex
-								- var point = priceInfo.point
-								- var points = priceInfo.points
-								- var trans = priceInfo.trans
-								- var priceWidth = priceInfo.priceWidth
-								- var price = priceInfo.price
-								g.price
-									polygon(points=points.map(p => `${p.x},${p.y}`).join(' '), tabindex=-1)
-									polyline(points=points.filter(p => p.y != scale.price).map(p => `${p.x},${p.y}`).join(' '))
-									g.priceInfo(transform=`translate(${trans.x}, ${trans.y})`)
-										rect(x=point.x, y=point.y, width=priceWidth, height=10, rx=2)
-										text(x=point.x + priceWidth / 2 - 0.4, y=point.y + 6, text-anchor='middle' dominant-baseline='middle')
-											| #{price}
-								g.dateInfo
-									- var date = fn.parseDate(chronos[index].snapshotDate)
-									- var textAnchor = index ? 'middle' : 'start'
-									line.date(x1=point.x, y1=scale.price, x2=point.x, y2=scale.price + 3)
-									text(x=point.x, y=scale.price + 4, text-anchor=textAnchor, dominant-baseline='hanging', class='date')
-										| #{new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short' }).format(date)}
-					.history(style=`--snapshots-count: ${snapshots.length-1};`)
-						details
-							summary.snapshot
-								+ snapshotDetail(snapshots[0])
-						.snapshots
-							each snapshot, index in snapshots.splice(1)
-								.snapshot
-									+ snapshotDetail(snapshot)
-								
+			div(class='auctions')
+				each auction, auctionId in report
+					- var firstSnapshot = auction.snapshots[0]
+					- var lastSnapshot = auction.snapshots.at(-1)
+					- var priceChange = Math.round((lastSnapshot.price - firstSnapshot.price) / firstSnapshot.price * 100)
+					- var banned = bannedUrls.includes(lastSnapshot.url) ? 'banned' : ''
+					- var fav = favUrls.includes(lastSnapshot.url) ? 'fav' : ''
+					- var dead = deadUrls.includes(lastSnapshot.url) ? 'dead' : ''
+					- var ended = auction.ended ? 'ended' : ''
+					- var new_ = auction.new ? 'new' : ''
+					- var className = ['auction', banned, fav, dead, ended, new_].join(' ')
+					- var area = `--area: ${parseInt(lastSnapshot.area)}`
+					- var price = `--price: ${lastSnapshot.price}`
+					- var style = [area, price].join('; ')
+					div(class=className, style=style, data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
+						- var snapshots = auction.snapshots.toReversed()
+						a(class='otodomAuctionLink', href=lastSnapshot.url, target='_blank', style="--background: url('" + lastSnapshot.imgUrls[0] + "')" )
+						.header
+							.title= lastSnapshot.title
+							.priceChange
+								| #{priceChange}%
+						.summary
+							.street= lastSnapshot.address.street 
+							.floor= lastSnapshot.floor == 0 ? 'parter' : `${lastSnapshot.floor}. piętro`
+						.details
+							.area= Math.round(lastSnapshot.area) + 'm²'
+							.price= fn.formatMoney(lastSnapshot.price)
+						.history(style=`--snapshots-count: ${snapshots.length-1};`)
+							- var chronos = snapshots.toReversed().map(s => ({ date: s.snapshotDate, price: s.price }))
+							+chart(auctionId, scale, chronos, fn)
+							details
+								summary.snapshot
+									+ snapshotDetail(snapshots[0])
+							.snapshots
+								each snapshot, index in snapshots.splice(1)
+									.snapshot
+										+ snapshotDetail(snapshot)
+									
 

@@ -27,6 +27,9 @@ jobs:
       - name: otodom create html
         run: |
           node json_to_html.js
+      - name: find relisted auctions
+        run: |
+          node duplicates.js
       - name: generate report
         run: |
           node report.js    
