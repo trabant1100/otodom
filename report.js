@@ -33,6 +33,16 @@ function normalizeReport(report) {
 	};
 
 	for (const [auctionId, auction] of Object.entries(normalized)) {
+		const auction = normalized[auctionId];
+		auction.snapshots = auction.snapshots.toSorted((s1, s2) => {
+			const date1 = DateTime.fromFormat(s1.snapshotDate, DATE_FORMAT);
+			const date2 = DateTime.fromFormat(s2.snapshotDate, DATE_FORMAT);
+			
+			return date1.toMillis() - date2.toMillis();
+		}).filter((snapshot, index, arr) => {
+			return !index || snapshot.snapshotDate != arr[index - 1].snapshotDate;
+		});
+
 		const minPrice = Math.min(...auction.snapshots.map(s => s.price));
 		const maxPrice = Math.max(...auction.snapshots.map(s => s.price));
 		const diff = maxPrice - minPrice;

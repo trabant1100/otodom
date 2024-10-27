@@ -133,6 +133,7 @@ const fn = {
 		return { x: tx, y: ty };
 	},
 	normalizeChronos(scale, chronos) {
+		chronos.push(chronos.at(-1));
 		const minPrice = Math.min(...chronos.map(s => s.price));
 		const maxPrice = Math.max(...chronos.map(s => s.price));
 		const diff = maxPrice - minPrice;
