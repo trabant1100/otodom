@@ -217,7 +217,20 @@ input[type=radio] {
 .header {
 	display: flex;
 	flex-direction: row;
-	gap: 1em;
+	flex-wrap: wrap;
+	gap: 0 1em;
+}
+
+.header::before {
+	background: linear-gradient(90deg, darkseagreen 0, darkseagreen var(--age), #FFF8 var(--age), #FFF8 100%);
+	content: var(--first-auction);
+	flex-shrink: 0;
+	margin-bottom: -1em;
+	left: -.3em;
+	padding: .1em .3em;
+	position: relative;
+	top: -1.65em;
+	width: 100%;
 }
 
 .title {
