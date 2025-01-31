@@ -47,6 +47,8 @@ html(lang="pl")
 					div(class=className, style=style, data-price-drop=priceChange < 0, data-price-rise=priceChange > 0)
 						- var snapshots = auction.snapshots.toReversed()
 						a(class='otodomAuctionLink', href=lastSnapshot.url, target='_blank', style="--background: url('" + lastSnapshot.imgUrls[0] + "')" )
+						.age(style=`--first-auction: '${firstAuction}'; --age: ${age}%`)
+							| #{firstAuction}
 						.header(style=`--first-auction: '${firstAuction}'; --age: ${age}%`)
 							.title= lastSnapshot.title
 							.priceChange

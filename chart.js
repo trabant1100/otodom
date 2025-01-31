@@ -11,18 +11,30 @@ const fn = {
 	calculatePriceInfos(chronosPoints, chronos, scale) {
 		const priceInfos = [];
 		let index = 0;
+		let toAdd = null;
 		while (index < chronosPoints.length - 1) {
 			const point = chronosPoints[index];
 			let priceChangeIndex = chronosPoints.slice(index)
 				.findIndex(p => p.y != point.y);
 			priceChangeIndex = priceChangeIndex != -1 ? index + priceChangeIndex : chronosPoints.length;
 			const chartPoints = [chronosPoints[index]]
-				.concat(chronosPoints[priceChangeIndex - 1], chronosPoints[priceChangeIndex])
+				.concat(chronosPoints[priceChangeIndex - 1]/*, chronosPoints[priceChangeIndex]*/)
 				.filter(p => p != undefined);
+			if (chronosPoints[priceChangeIndex] && (chronosPoints[priceChangeIndex].y > point.y)) {
+				chartPoints.push(chronosPoints[priceChangeIndex]);
+			}
+			if (toAdd != null) {
+				chartPoints.unshift(toAdd);
+				toAdd = null;
+			}
 			const points = chartPoints
-				.concat({ x: chartPoints.at(-1).x, y: scale.price }, { x: point.x, y: scale.price });
+				.concat({ x: chartPoints.at(-1).x, y: scale.price }, { x: chartPoints[0].x, y: scale.price });
 
-			priceInfos.push({ index, priceChangeIndex, point, points });
+			if (chronosPoints[priceChangeIndex] && (chronosPoints[priceChangeIndex].y < point.y)) {
+				toAdd = chronosPoints[priceChangeIndex-1];
+			}
+
+			priceInfos.push({ index, priceChangeIndex, point: chartPoints[0], points });
 			index = priceChangeIndex;
 		}
 
@@ -165,6 +177,28 @@ const fn = {
 		}
 
 		return normalizedChronos;
+	},
+	calcChronosPoints(scale, chronos) {
+		const chronosPoints = [{ x: 0, y: scale.price - chronos[0].chartPrice }];
+		let nextOffset = 0;
+		for (let i = 0; i < chronos.length; i++) {
+			const s = chronos[i];
+			const next = chronos[i+1];
+			let offset = next && s.chartPrice != next?.chartPrice
+				? (next?.chartDate - s.chartDate)
+				: 0;
+			if (next && s.chartPrice > next.chartPrice) {
+				offset -= 2;
+			}
+			chronosPoints.push({ x: s.chartDate + offset + nextOffset, y: scale.price - s.chartPrice });
+
+			if (next && s.chartPrice < next.chartPrice) {
+				nextOffset = 2;
+			} else {
+				nextOffset = 0;
+			}
+		}
+		return chronosPoints;
 	}
 };
 

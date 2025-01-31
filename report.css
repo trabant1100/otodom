@@ -221,15 +221,14 @@ input[type=radio] {
 	gap: 0 1em;
 }
 
-.header::before {
+.auction > .age {
 	background: linear-gradient(90deg, darkseagreen 0, darkseagreen var(--age), #FFF8 var(--age), #FFF8 100%);
 	content: var(--first-auction);
 	flex-shrink: 0;
-	margin-bottom: -1em;
-	left: -.3em;
-	padding: .1em .3em;
-	position: relative;
-	top: -1.65em;
+	height: 1.4em;
+	line-height: 1.4em;
+	margin: -1.7em 0 0 0;
+	text-indent: .3em;
 	width: 100%;
 }
 
@@ -239,7 +238,11 @@ input[type=radio] {
 }
 
 .priceChange {
-	color: var(--price-main-color);
+	color: darkgreen;
+}
+
+.auction[data-price-drop] .priceChange {
+	color: crimson;
 }
 
 .auction[data-price-drop] .priceChange::before {
@@ -305,11 +308,11 @@ summary.snapshot::-webkit-details-marker {
 	--snapshots-height: calc(var(--snapshots-count) * (var(--snapshot-height) + var(--snapshot-gap)));
 }
 
-details {
+.history details {
 	margin-bottom: .2em;
 }
 
-details::after {
+.history details::after {
 	clip-path: inset(50% 0 0 0);
 	color: #999;
 	content: '▿';
@@ -324,25 +327,25 @@ details::after {
 	top: -.8em;
 }
 
-details[open]::after {
+.history details[open]::after {
 	rotate: 180deg;
 	top: -.6em;
 }
 
-details + .snapshots {
+.history details + .snapshots {
 	max-height: 0;
 	overflow: hidden;
 	transition: max-height 400ms ease-in;
 }
 
-details[open] + .snapshots {
+.history details[open] + .snapshots {
 	max-height: var(--snapshots-height);
 }
 
 @media screen and (hover: hover) {
 	.auctions {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(20em, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(20em, 1fr));
 	}
 
 	.auction {
@@ -402,6 +405,7 @@ svg.priceChart g.price polyline {
 
 svg.priceChart g.price g.priceInfo {
 	display: none;
+	pointer-events: none;
 }
 
 @media (hover: hover) {
