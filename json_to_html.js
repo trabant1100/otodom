@@ -43,7 +43,7 @@ async function createHtml(imagesDir, fullFilename) {
 			<h3>${new Intl.NumberFormat("pl-PL").format(auction.price)} PLN</h3>
 			<h3>${auction.area} m<sup>2</sup></h3>
 			<h3>${auction.rooms} pokoje</h3>
-			<h3>${auction.floor.replace('FLOOR_', '')} piętro</h3>
+			<h3>${auction.floor?.replace('FLOOR_', '')} piętro</h3>
 			<p style="white-space: preserve-breaks;">${auction.fullDescription}</p>
 			${imgHtml}
 		</body>
