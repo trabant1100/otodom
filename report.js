@@ -48,7 +48,8 @@ function normalizeReport(report) {
 		const diff = maxPrice - minPrice;
 		for (const [index, snapshot] of auction.snapshots.entries()) {
 			const prevSnapshot = auction.snapshots[index > 0 ? index - 1 : 0];
-			snapshot.floor = snapshot.floor == 'GROUND_FLOOR' ? 0 : Number.parseInt(snapshot.floor.replace('FLOOR_', ''));
+			if (snapshot.floor)
+			    snapshot.floor = snapshot.floor == 'GROUND_FLOOR' ? 0 : Number.parseInt(snapshot.floor.replace('FLOOR_', ''));
 			snapshot.normalized = {
 				price: Math.round(normalize(minPrice, maxPrice, scale.priceMargin, scale.price - scale.priceMargin, snapshot.price)),
 				date: Math.round(normalize(0, auction.snapshots.length - 1, 0, scale.date, index)),
